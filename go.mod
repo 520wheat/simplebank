@@ -1,4 +1,4 @@
-module github.com/wheat/simplebank
+module github.com/520wheat/simplebank
 
 go 1.26.1
 

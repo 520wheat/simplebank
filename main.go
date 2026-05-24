@@ -12,7 +12,7 @@ import (
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/rs/zerolog"
 	"github.com/rs/zerolog/log"
-	"github.com/wheat/simplebank/util"
+	"github.com/520wheat/simplebank/util"
 )
 
 func main() {
