@@ -1,0 +1,16 @@
+# build
+/simplebank
+*.exe
+*.test
+*.out
+
+# env (contains secrets)
+*.env
+!app.env.example
+
+# IDE
+.vscode/
+.idea/
+
+# deps
+vendor/
