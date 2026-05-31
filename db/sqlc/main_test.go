@@ -10,6 +10,7 @@ import (
 )
 
 var testQueries *Queries
+var testConnPool *pgxpool.Pool
 
 func TestMain(m *testing.M) {
 	config, err := util.LoadConfig("../..")
@@ -17,11 +18,11 @@ func TestMain(m *testing.M) {
 		panic("cannot load config: " + err.Error())
 	}
 
-	connPool, err := pgxpool.New(context.Background(), config.DBSource)
+	testConnPool, err = pgxpool.New(context.Background(), config.DBSource)
 	if err != nil {
 		panic("cannot connect to db: " + err.Error())
 	}
 
-	testQueries = New(connPool)
+	testQueries = New(testConnPool)
 	os.Exit(m.Run())
 }
