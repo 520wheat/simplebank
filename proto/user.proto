@@ -1,0 +1,16 @@
+syntax = "proto3"; //首行声明
+
+package pb; //生成的 Go 包名
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/520wheat/simplebank/pb";
+
+message User {
+    string username = 1;    //不是赋值为 1，是字段编号。protobuf.用编号做二进制编码，修改时只能加新字段，不能重用已删除字段的编号
+    string full_name = 2;
+    string email = 3;
+    string role = 4;
+    google.protobuf.Timestamp password_changed_at = 5;
+    google.protobuf.Timestamp created_at = 6;
+  }
