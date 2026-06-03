@@ -135,3 +135,8 @@ make test
 ## 许可证
 
 MIT
+
+## 致谢
+
+本项目设计灵感来源于 [techschool/simplebank](https://github.com/techschool/simplebank)，
+在原项目基础上进行了架构优化、依赖升级和功能扩展。
