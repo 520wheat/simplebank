@@ -31,6 +31,7 @@ import (
 	"github.com/520wheat/simplebank/mail"
 	"github.com/520wheat/simplebank/worker"
 	"github.com/hibiken/asynq"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
 )
 
 func main() {
@@ -63,7 +64,7 @@ func main() {
 
 	mailer := mail.NewGmailSender(config.EmailSenderName, config.EmailSenderAddress, config.EmailSenderPassword)
 	taskProcessor := worker.NewRedisTaskProcessor(redisOpt, store, mailer)
-        taskDistributor := worker.NewRedisTaskDistributor(redisOpt)
+	taskDistributor := worker.NewRedisTaskDistributor(redisOpt)
 
 	log.Info().Msg("start task processor")
 	if err := taskProcessor.Start(); err != nil {
@@ -145,7 +146,7 @@ func runGatewayServer(
 	waitGroup *errgroup.Group,
 	config util.Config,
 	store db.Store,
-        taskDistributor worker.TaskDistributor,
+	taskDistributor worker.TaskDistributor,
 ) {
 	server, err := gapi.NewServer(config, store, taskDistributor)
 	if err != nil {
@@ -169,6 +170,7 @@ func runGatewayServer(
 	mux := http.NewServeMux()
 	// Swagger UI（后面补）
 	mux.Handle("/", grpcMux)
+	mux.Handle("/metrics", promhttp.Handler())
 
 	// 健康检查
 	healthHandler := health.NewHandler(store)
@@ -176,13 +178,17 @@ func runGatewayServer(
 	mux.HandleFunc("/health/ready", healthHandler.Readiness)
 
 	// 中间件链：logger → CORS → handler
-	handler := middleware.Logger(
-		cors.New(cors.Options{
-			AllowedOrigins:   config.AllowedOrigins,
-			AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
-			AllowedHeaders:   []string{"Content-Type", "Authorization"},
-			AllowCredentials: true,
-		}).Handler(mux),
+	handler := middleware.RequestID(
+		middleware.Logger(
+			middleware.Metrics(
+				cors.New(cors.Options{
+					AllowedOrigins:   config.AllowedOrigins,
+					AllowedMethods:   []string{"GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"},
+					AllowedHeaders:   []string{"Content-Type", "Authorization"},
+					AllowCredentials: true,
+				}).Handler(mux),
+			),
+		),
 	)
 
 	httpServer := &http.Server{
