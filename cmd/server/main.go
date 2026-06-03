@@ -32,6 +32,7 @@ import (
 	"github.com/520wheat/simplebank/worker"
 	"github.com/hibiken/asynq"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
+	"github.com/520wheat/simplebank/doc/swagger"
 )
 
 func main() {
@@ -171,6 +172,8 @@ func runGatewayServer(
 	// Swagger UI（后面补）
 	mux.Handle("/", grpcMux)
 	mux.Handle("/metrics", promhttp.Handler())
+	mux.Handle("/swagger/", swagger.UIHandler())
+	mux.HandleFunc("/swagger/simple_bank.swagger.json", swagger.JSONHandler())
 
 	// 健康检查
 	healthHandler := health.NewHandler(store)
